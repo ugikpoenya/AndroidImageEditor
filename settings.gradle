@@ -1,0 +1,3 @@
+rootProject.name = "AndroidImageEditor"
+include ':app'
+include ':ImageEditor'
