@@ -21,6 +21,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.AnticipateOvershootInterpolator
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -56,6 +57,8 @@ class ImageEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnC
     PropertiesBSFragment.Properties, ShapeBSFragment.Properties, EmojiBSFragment.EmojiListener, StickerBSFragment.StickerListener,
     EditingToolsAdapter.OnItemSelected, FilterListener {
     private lateinit var binding: ActivityImageEditorBinding
+    var mProgressDialog: ProgressDialog? = null
+
     lateinit var mPhotoEditor: PhotoEditor
     private lateinit var mPropertiesBSFragment: PropertiesBSFragment
     private lateinit var mShapeBuilder: ShapeBuilder
@@ -105,6 +108,11 @@ class ImageEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnC
     }
 
     private fun initComponent() {
+        mProgressDialog = ProgressDialog(this)
+        mProgressDialog?.setMessage("Saving...")
+        mProgressDialog?.setCancelable(false)
+        mProgressDialog?.setProgressStyle(ProgressDialog.STYLE_SPINNER)
+
         binding.imgClose.setOnClickListener {
             onBackPressed()
         }
@@ -192,14 +200,7 @@ class ImageEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnC
     }
 
     fun saveImage() {
-        val mProgressDialog = ProgressDialog(this)
-        mProgressDialog.run {
-            setMessage("Saving...")
-            setProgressStyle(ProgressDialog.STYLE_SPINNER)
-            setCancelable(false)
-            show()
-        }
-
+        mProgressDialog?.show()
         mPhotoEditor.clearHelperBox()
         val bitmap = getBitmapFromView(binding.photoEditorView)
 
@@ -211,9 +212,9 @@ class ImageEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnC
         } catch (e: IOException) {
             e.printStackTrace()
         }
-        mProgressDialog.dismiss()
         ImageHolder.setData(byteArray)
         setResult(RESULT_OK)
+        mProgressDialog?.dismiss()
         finish()
     }
 
