@@ -106,7 +106,8 @@ class MainActivity : AppCompatActivity() {
         stickers.add("https://cdn-icons-png.flaticon.com/256/4392/4392522.png")
 
         val intent = Intent(applicationContext, ImageEditorActivity::class.java)
-        intent.putExtra("height", getScreenWidth())
+//        intent.putExtra("height", getScreenWidth())
+//        intent.putExtra("width", getScreenWidth())
         intent.putStringArrayListExtra("stickers", stickers)
         eraserLauncer.launch(intent)
     }

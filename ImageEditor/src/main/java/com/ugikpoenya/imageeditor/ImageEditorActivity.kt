@@ -152,29 +152,24 @@ class ImageEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnC
         binding.rvFilterView.layoutManager = llmFilters
         binding.rvFilterView.adapter = mFilterViewAdapter
 
-
-
         binding.imgSave.setOnClickListener { saveImage() }
 
         val pinchTextScalable = intent.getBooleanExtra(PINCH_TEXT_SCALABLE_INTENT_KEY, true)
 
         val width = intent.getIntExtra("width", 0)
         val height = intent.getIntExtra("height", 0)
-        if (width > 0 && height > 0) {
-            val layoutParams = binding.imgStickerMainLayout.layoutParams
-            layoutParams.width = width
-            layoutParams.height = height
-            binding.imgStickerMainLayout.layoutParams = layoutParams
-            binding.photoEditorView.source.layoutParams = RelativeLayout.LayoutParams(width, height)
-        } else if (height > 0) {
-            val layoutParams = binding.imgStickerMainLayout.layoutParams
+        val layoutParams = binding.imgStickerMainLayout.layoutParams
+        if (height > 0) {
             layoutParams.width = height
             layoutParams.height = height
-            binding.imgStickerMainLayout.layoutParams = layoutParams
-            binding.photoEditorView.source.layoutParams = RelativeLayout.LayoutParams(height, height)
         }
-        mPhotoEditor = PhotoEditor.Builder(this, binding.photoEditorView).setPinchTextScalable(pinchTextScalable).build()
+        if (width > 0) {
+            layoutParams.width = width
+        }
 
+        binding.imgStickerMainLayout.layoutParams = layoutParams
+        mPhotoEditor = PhotoEditor.Builder(this, binding.photoEditorView).setPinchTextScalable(pinchTextScalable).build()
+        binding.photoEditorView.source.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT)
         mPhotoEditor.setOnPhotoEditorListener(this)
     }
 
