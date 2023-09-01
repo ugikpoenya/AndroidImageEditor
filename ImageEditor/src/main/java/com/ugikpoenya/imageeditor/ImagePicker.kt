@@ -32,7 +32,7 @@ class ImagePicker {
         takePictureIntent.resolveActivity(context.packageManager)
         val photoURI: Uri = FileProvider.getUriForFile(
             context,
-            "com.ugikpoenya.imageeditor.fileprovider",
+            context.packageName + ".fileprovider",
             currentPhotoFile
         )
         return takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
