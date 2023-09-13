@@ -7,7 +7,7 @@
 
     <application
         android:name=".editor.PhotoApp"
-        android:theme="@style/Theme.StickerWA">
+        android:theme="@style/Theme.ImageEditor">
         <activity
             android:name="com.canhub.cropper.CropImageActivity"
             android:screenOrientation="portrait"
