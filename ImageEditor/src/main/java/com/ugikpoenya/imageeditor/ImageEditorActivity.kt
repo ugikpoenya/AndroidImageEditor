@@ -139,15 +139,13 @@ class ImageEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnC
         var stickers = intent.getStringArrayListExtra("stickers")
         if (stickers.isNullOrEmpty()) {
             stickers = ArrayList<String>()
-            stickers.add("https://cdn-icons-png.flaticon.com/256/4392/4392452.png")
-            stickers.add("https://cdn-icons-png.flaticon.com/256/4392/4392455.png")
-            stickers.add("https://cdn-icons-png.flaticon.com/256/4392/4392459.png")
-            stickers.add("https://cdn-icons-png.flaticon.com/256/4392/4392462.png")
-            stickers.add("https://cdn-icons-png.flaticon.com/256/4392/4392465.png")
-            stickers.add("https://cdn-icons-png.flaticon.com/256/4392/4392467.png")
-            stickers.add("https://cdn-icons-png.flaticon.com/256/4392/4392469.png")
-            stickers.add("https://cdn-icons-png.flaticon.com/256/4392/4392471.png")
-            stickers.add("https://cdn-icons-png.flaticon.com/256/4392/4392522.png")
+            val folders = assets.list("stickers")
+            folders?.forEach { folder ->
+                val files = assets.list("stickers/$folder")
+                files?.forEach { file ->
+                    stickers.add("file:///android_asset/stickers/$folder/$file")
+                }
+            }
         }
 
         mStickerBSFragment = StickerBSFragment(stickers)

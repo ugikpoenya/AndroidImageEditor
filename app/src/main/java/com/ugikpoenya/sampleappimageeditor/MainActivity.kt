@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(applicationContext, ImageEditorActivity::class.java)
 //        intent.putExtra("height", getScreenWidth())
 //        intent.putExtra("width", getScreenWidth())
-        intent.putStringArrayListExtra("stickers", stickers)
+//        intent.putStringArrayListExtra("stickers", stickers)
         eraserLauncer.launch(intent)
     }
 
