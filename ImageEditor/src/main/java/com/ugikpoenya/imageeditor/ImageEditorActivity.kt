@@ -21,8 +21,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.AnticipateOvershootInterpolator
-import android.widget.ProgressBar
 import android.widget.RelativeLayout
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
@@ -179,6 +179,11 @@ class ImageEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnC
         mPhotoEditor = PhotoEditor.Builder(this, binding.photoEditorView).setPinchTextScalable(pinchTextScalable).build()
         binding.photoEditorView.source.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT)
         mPhotoEditor.setOnPhotoEditorListener(this)
+
+        if (ImageHolder.hasData()) {
+            val originalBitmap = BitmapFactory.decodeByteArray(ImageHolder.getData(), 0, ImageHolder.getData().size)
+            binding.photoEditorView.source.setImageBitmap(originalBitmap)
+        }
     }
 
 
