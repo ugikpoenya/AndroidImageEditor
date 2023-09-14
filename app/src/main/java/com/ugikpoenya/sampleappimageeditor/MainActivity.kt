@@ -8,6 +8,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.util.Log
@@ -15,17 +16,21 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.canhub.cropper.CropImageContract
-import com.canhub.cropper.CropImageContractOptions
-import com.canhub.cropper.CropImageOptions
+import androidx.core.content.ContextCompat
 import com.ugikpoenya.imageeditor.ImageEditorActivity
 import com.ugikpoenya.imageeditor.ImageHolder
 import com.ugikpoenya.imageeditor.ImageEraserActivity
 import com.ugikpoenya.imageeditor.ImagePicker
+import com.ugikpoenya.imageeditor.R
 import com.ugikpoenya.imageeditor.currentPhotoFile
 import com.ugikpoenya.sampleappimageeditor.databinding.ActivityMainBinding
+import com.yalantis.ucrop.UCrop
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class MainActivity : AppCompatActivity() {
     private var binding: ActivityMainBinding? = null
@@ -38,10 +43,10 @@ class MainActivity : AppCompatActivity() {
         ImageHolder.setData(null)
     }
 
-
-    private val cropImage = registerForActivityResult(CropImageContract()) { result ->
-        if (result.isSuccessful) {
-            val uri = result.uriContent
+    private val cropImage = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            Log.d("LOG", "cropImage Result")
+            val uri = UCrop.getOutput(result.data!!)
             currentBitmab = if (Build.VERSION.SDK_INT < 28) {
                 MediaStore.Images.Media.getBitmap(
                     this.contentResolver,
@@ -79,6 +84,23 @@ class MainActivity : AppCompatActivity() {
             ImageHolder.setData(byteArray)
             val intent = Intent(applicationContext, ImageEraserActivity::class.java)
             eraserLauncer.launch(intent)
+        }
+    }
+
+    fun showImageCroper(view: View?) {
+        if (currentBitmab != null) {
+            val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+            val croppedFile = File.createTempFile(
+                "cropped_${timeStamp}_", /* prefix */
+                ".png", /* suffix */
+                storageDir /* directory */
+            )
+            val fOut = FileOutputStream(croppedFile)
+            currentBitmab!!.compress(Bitmap.CompressFormat.PNG, 100, fOut)
+            fOut.flush()
+            fOut.close()
+            showCroppImage(Uri.fromFile(croppedFile))
         }
     }
 
@@ -123,16 +145,13 @@ class MainActivity : AppCompatActivity() {
 
     private var galeryLauncer = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val uri = result.data?.data
-            val cropImageContractOptions = CropImageContractOptions(uri, CropImageOptions())
-            cropImage.launch(cropImageContractOptions)
+            showCroppImage(result.data?.data)
         }
     }
 
     private var cameraLauncer = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val cropImageContractOptions = CropImageContractOptions(Uri.fromFile(currentPhotoFile), CropImageOptions())
-            cropImage.launch(cropImageContractOptions)
+            showCroppImage(Uri.fromFile(currentPhotoFile))
         }
     }
 
@@ -141,6 +160,26 @@ class MainActivity : AppCompatActivity() {
             Log.d("LOG", "eraserImage Result")
             currentBitmab = BitmapFactory.decodeByteArray(ImageHolder.getData(), 0, ImageHolder.getData().size)
             binding?.imageView?.setImageBitmap(currentBitmab)
+        }
+    }
+
+
+    private fun showCroppImage(imageUri: Uri?) {
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val croppedFile = File.createTempFile(
+            "cropped_${timeStamp}_", /* prefix */
+            ".png", /* suffix */
+            storageDir /* directory */
+        )
+        val options = UCrop.Options()
+        options.setCompressionFormat(Bitmap.CompressFormat.PNG)
+        options.setRootViewBackgroundColor(ContextCompat.getColor(this, R.color.transparent))
+        if (imageUri != null) {
+            val cropIntent = UCrop.of(imageUri, Uri.fromFile(croppedFile))
+                .withOptions(options)
+                .getIntent(this)
+            cropImage.launch(cropIntent)
         }
     }
 }

@@ -10,6 +10,7 @@
     <color name="infoPageBackgroundColor">#EBEBEB</color>
     <color name="actionBarArrowColor">@color/colorAccent</color>
 
+    <color name="transparent">#00000000</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="blue_color_picker">#0066FF</color>

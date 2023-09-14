@@ -12,6 +12,7 @@ import android.graphics.Canvas
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
@@ -26,10 +27,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.canhub.cropper.CropImageContract
-import com.canhub.cropper.CropImageContractOptions
-import com.canhub.cropper.CropImageOptions
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ugikpoenya.imageeditor.databinding.ActivityImageEditorBinding
 import com.ugikpoenya.imageeditor.editor.EditingToolsAdapter
@@ -42,6 +41,7 @@ import com.ugikpoenya.imageeditor.editor.StickerBSFragment
 import com.ugikpoenya.imageeditor.editor.TextEditorDialogFragment
 import com.ugikpoenya.imageeditor.editor.ToolType
 import com.ugikpoenya.imageeditor.editor.imageTouchLisener
+import com.yalantis.ucrop.UCrop
 import ja.burhanrashid52.photoeditor.OnPhotoEditorListener
 import ja.burhanrashid52.photoeditor.PhotoEditor
 import ja.burhanrashid52.photoeditor.PhotoFilter
@@ -50,7 +50,10 @@ import ja.burhanrashid52.photoeditor.ViewType
 import ja.burhanrashid52.photoeditor.shape.ShapeBuilder
 import ja.burhanrashid52.photoeditor.shape.ShapeType
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
 
 
 class ImageEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnClickListener,
@@ -223,23 +226,40 @@ class ImageEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnC
 
     private var galeryLauncer = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val uri = result.data?.data
-            val cropImageContractOptions = CropImageContractOptions(uri, CropImageOptions())
-            cropImage.launch(cropImageContractOptions)
+            showCroppImage(result.data?.data)
         }
     }
 
     private var cameraLauncer = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val cropImageContractOptions = CropImageContractOptions(Uri.fromFile(currentPhotoFile), CropImageOptions())
-            cropImage.launch(cropImageContractOptions)
+            showCroppImage(Uri.fromFile(currentPhotoFile))
+        }
+    }
+
+    private fun showCroppImage(imageUri: Uri?) {
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val croppedFile = File.createTempFile(
+            "cropped_${timeStamp}_", /* prefix */
+            ".png", /* suffix */
+            storageDir /* directory */
+        )
+        val options = UCrop.Options()
+        options.setCompressionFormat(Bitmap.CompressFormat.PNG)
+        options.setRootViewBackgroundColor(ContextCompat.getColor(this, R.color.transparent))
+        if (imageUri != null) {
+            val cropIntent = UCrop.of(imageUri, Uri.fromFile(croppedFile))
+                .withOptions(options)
+                .getIntent(this)
+            cropImage.launch(cropIntent)
         }
     }
 
 
-    private val cropImage = registerForActivityResult(CropImageContract()) { result ->
-        if (result.isSuccessful) {
-            val uri = result.uriContent
+    private val cropImage = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            Log.d("LOG", "cropImage Result")
+            val uri = UCrop.getOutput(result.data!!)
             val bitmap = MediaStore.Images.Media.getBitmap(
                 contentResolver, uri
             )

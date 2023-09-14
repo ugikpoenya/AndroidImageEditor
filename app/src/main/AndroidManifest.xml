@@ -16,9 +16,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
         <activity
-            android:name="com.canhub.cropper.CropImageActivity"
+            android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Base.Theme.AppCompat" />
+            android:theme="@style/Base.Theme.ImageEditor" />
 
         <activity
             android:name="com.ugikpoenya.sampleappimageeditor.MainActivity"
