@@ -23,12 +23,13 @@ import android.view.View
 import android.view.WindowManager
 import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.RelativeLayout
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.flask.colorpicker.ColorPickerView
+import com.flask.colorpicker.builder.ColorPickerDialogBuilder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ugikpoenya.imageeditor.databinding.ActivityImageEditorBinding
 import com.ugikpoenya.imageeditor.editor.EditingToolsAdapter
@@ -184,6 +185,21 @@ class ImageEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnC
         if (ImageHolder.hasData()) {
             val originalBitmap = BitmapFactory.decodeByteArray(ImageHolder.getData(), 0, ImageHolder.getData().size)
             binding.photoEditorView.source.setImageBitmap(originalBitmap)
+        }
+
+        binding.imgColor.setOnClickListener {
+            ColorPickerDialogBuilder
+                .with(this)
+                .setTitle("Choose color")
+                .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                .density(12)
+                .setPositiveButton("Ok") { _, selectedColor, allColors ->
+                    Log.d("LOG", selectedColor.toString())
+                    binding.photoEditorView.source.setBackgroundColor(selectedColor)
+                }
+                .setNegativeButton("Cancel") { _, _ -> }
+                .build()
+                .show()
         }
     }
 

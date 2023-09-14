@@ -74,6 +74,16 @@
         app:layout_constraintStart_toEndOf="@id/imgGallery" />
 
     <ImageView
+        android:id="@+id/imgColor"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:background="#99000000"
+        android:padding="8dp"
+        android:src="@drawable/ic_brush"
+        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+        app:layout_constraintStart_toEndOf="@id/imgCamera" />
+
+    <ImageView
         android:id="@+id/imgClose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
